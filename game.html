@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>生命不旁观｜公益科普互动挑战·稳定体验版</title>
+<style>
+:root{--red:#d83a43;--blue:#173b6c;--teal:#129b91;--ink:#182438;--muted:#68778d;--bg:#f4f7fb;--line:#e4eaf1;--good:#167653;--bad:#9b333a}
+*{box-sizing:border-box}
+body{margin:0;color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;line-height:1.65;background-color: #eef5fb;}
+
+/* 新增：全屏背景图与遮罩 */
+#bg {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    z-index: -2;
+    transition: background-image 0.8s ease-in-out;
+}
+#bg::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(244, 247, 251, 0.75); /* 半透明遮罩，保证文字清晰 */
+}
+
+button,input{font:inherit}.wrap{max-width:1080px;margin:auto;padding:0 18px}
+header{background:rgba(255,255,255,.94);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10; backdrop-filter: blur(10px);}
+.nav{height:64px;display:flex;align-items:center;justify-content:space-between}.logo{font-weight:900;color:var(--blue)}.logo b{background:var(--red);color:#fff;border-radius:9px;padding:4px 8px;margin-right:8px}.nav small{color:var(--muted)}
+.hero{padding:44px 0 28px}.heroGrid{display:grid;grid-template-columns:1.4fr .6fr;gap:24px;align-items:center}
+.kicker{display:inline-block;color:var(--red);font-weight:800;background:#fff0f1;border:1px solid #ffd8da;padding:6px 12px;border-radius:999px;font-size:13px}
+h1{font-size:clamp(38px,6vw,68px);line-height:1.04;letter-spacing:-.045em;margin:16px 0 12px}h1 span{color:var(--red)}.lead{font-size:17px;color:#586a80;max-width:700px}
+.score{background:linear-gradient(145deg,#173b6c,#285f90);color:white;border-radius:24px;padding:25px;box-shadow:0 16px 45px rgba(23,59,108,.18)}.score small{color:#d9e7f5}.score strong{display:block;font-size:54px;line-height:1.1;margin:3px 0}.score div{font-weight:900;font-size:19px}
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:12px 0 30px}.card{background:rgba(255,255,255,0.85);border:1px solid var(--line);border-radius:16px;padding:15px;box-shadow:0 7px 20px rgba(30,55,90,.04);backdrop-filter: blur(5px);}.card b{display:block;font-size:14px}.card small{color:var(--muted)}
+.game{background:rgba(255,255,255,0.92);border:1px solid var(--line);border-radius:25px;box-shadow:0 18px 55px rgba(30,55,90,.1);overflow:hidden;backdrop-filter: blur(10px);}.gamebar{display:flex;align-items:center;gap:14px;padding:18px 22px;border-bottom:1px solid var(--line)}.track{height:8px;background:#edf1f5;border-radius:99px;flex:1;overflow:hidden}.fill{height:100%;width:0;background:linear-gradient(90deg,var(--red),#ff9c72);transition:.35s}.stage{font-weight:800;color:var(--blue);white-space:nowrap;font-size:13px}
+.scene{padding:28px}.chapter{color:var(--red);font-size:12px;font-weight:900;letter-spacing:.1em}.scene h2{font-size:29px;line-height:1.25;margin:4px 0 10px}.tag{display:inline-block;color:var(--teal);background:#effaf8;border:1px solid #ccebe7;border-radius:99px;padding:5px 10px;font-size:12px;font-weight:800}
+.story{margin:18px 0;background:linear-gradient(135deg,#f8fbff,#f3faf9);border:1px solid var(--line);border-radius:17px;padding:20px}.story strong{color:var(--blue)}
+.options{display:grid;grid-template-columns:1fr 1fr;gap:12px}.option{background:#fff;border:1px solid #dce4ee;border-radius:15px;padding:16px;text-align:left;cursor:pointer;min-height:86px;transition:.15s}.option:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(30,55,90,.08)}.option:disabled{cursor:default}.letter{display:inline-grid;place-items:center;width:27px;height:27px;border-radius:50%;background:#edf3f8;color:var(--blue);font-weight:900;margin-right:7px}.option.good{background:#f0fbf6;border-color:#82ceb0}.option.bad{background:#fff4f4;border-color:#efadb2}
+.feedback{display:none;margin-top:15px;border-radius:15px;padding:15px 17px}.feedback.show{display:block}.feedback.good{background:#effaf5;color:var(--good);border:1px solid #bce6d3}.feedback.bad{background:#fff5f5;color:var(--bad);border:1px solid #f0c5c8}.next{display:none;margin-top:15px;border:0;background:var(--blue);color:#fff;border-radius:11px;padding:11px 18px;font-weight:800;cursor:pointer}.next.show{display:inline-block}
+.final{display:none;text-align:center;padding:38px 25px}.final.show{display:block}.final h2{font-size:38px;margin:8px}.final p{color:var(--muted)}.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:650px;margin:22px auto}.metric{background:#f7f9fc;border:1px solid var(--line);border-radius:14px;padding:13px}.metric strong{display:block;color:var(--blue);font-size:28px}.certificate{max-width:720px;margin:25px auto;border:2px solid #d7b66b;border-radius:20px;padding:28px;background:#fffdf6}.certificate .seal{font-size:12px;color:#92701e;font-weight:900;letter-spacing:.12em}.certificate h3{font-size:30px;margin:8px}.name{border:0;border-bottom:1px solid #9ba8b7;background:transparent;text-align:center;width:65%;padding:8px;font-size:21px;font-weight:800;outline:none}.buttons{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:18px}.btn{border:0;border-radius:11px;padding:11px 17px;font-weight:800;cursor:pointer}.primary{background:var(--red);color:white}.secondary{background:#edf3f8;color:var(--blue)}
+.notice{text-align:center;color:#7a8798;font-size:12px;padding:22px 0 45px; text-shadow: 0 1px 2px rgba(255,255,255,0.8);}footer{text-align:center;color:#8995a6;font-size:12px;padding:25px; text-shadow: 0 1px 2px rgba(255,255,255,0.8);}
+@media(max-width:800px){.heroGrid{grid-template-columns:1fr}.cards{grid-template-columns:1fr 1fr}.options{grid-template-columns:1fr}}
+@media(max-width:520px){.cards,.metrics{grid-template-columns:1fr}.scene{padding:21px}.name{width:90%}.score strong{font-size:45px}}
+@media print{header,.hero,.cards,.gamebar,.scene,.notice,footer,.buttons{display:none!important}.game{border:0;box-shadow:none}.final{display:block!important} #bg {display: none;}}
+</style>
+</head>
+<body>
+<!-- 新增：背景图片容器 -->
+<div id="bg"></div>
+
+<header><div class="wrap nav"><div class="logo"><b>公益</b>生命不旁观</div><small>公益科普 · 情境判断 · 信息文明</small></div></header>
+
+<main class="wrap">
+<section class="hero">
+<div class="heroGrid">
+<div>
+<div class="kicker">稳定体验版 · 公益互动挑战</div>
+<h1>让一次选择，<br><span>成为可靠的帮助。</span></h1>
+<p class="lead">通过连续校园情境，练习四种能力：先判断、会求助、懂核实、守隐私。游戏只用于公益科普学习，不替代专业急救培训。</p>
+</div>
+<div class="score"><small>当前守护值</small><strong id="score">100</strong><div id="rank">公益守护先锋</div></div>
+</div>
+</section>
+
+<section class="cards">
+<div class="card"><b>01｜先判断</b><small>安全与专业求助优先</small></div>
+<div class="card"><b>02｜再核实</b><small>健康信息要有可靠来源</small></div>
+<div class="card"><b>03｜不传播</b><small>保护患者隐私与个人信息</small></div>
+<div class="card"><b>04｜会表达</b><small>把知识变成真正有用的公益内容</small></div>
+</section>
+
+<section class="game">
+<div class="gamebar"><div class="track"><div class="fill" id="fill"></div></div><div class="stage" id="stage">第 1 / 8 幕</div></div>
+<div id="scene"></div>
+<div class="final" id="final">
+<div style="font-size:48px">✦</div>
+<h2 id="finalRank"></h2>
+<p id="finalText"></p>
+<div class="metrics">
+<div class="metric"><strong id="finalScore">0</strong>守护值</div>
+<div class="metric"><strong id="finalRight">0/8</strong>可靠选择</div>
+<div class="metric"><strong id="finalLevel">A+</strong>行动等级</div>
+</div>
+<div class="certificate">
+<div class="seal">校园公益科普互动挑战</div>
+<h3>「生命不旁观」</h3>
+<p>兹证明</p>
+<input class="name" id="name" maxlength="18" placeholder="输入姓名 / 昵称">
+<p>完成公益急救与信息文明情境挑战，展现了尊重生命、理性求助、保护隐私与负责任表达的意识。</p>
+<small>本证书为互动学习纪念凭证，不代表专业急救资质。</small>
+</div>
+<div class="buttons">
+<button class="btn primary" id="printBtn">打印 / 保存证书</button>
+<button class="btn secondary" id="restartBtn">重新挑战</button>
+</div>
+</div>
+</section>
+
+<p class="notice">现实遇到紧急情况，请优先联系当地专业急救服务，并遵从现场专业人员指引。不要为了游戏或拍摄而延误求助，也不要传播真实患者的照片、姓名、联系方式或未经证实的病情信息。</p>
+</main>
+<footer>生命不旁观 · 把“知道”变成“可靠的行动”</footer>
+
+<script>
+(function(){
+"use strict";
+
+// 替换为您实际的图片路径
+var bgImages = [
+    "1.jpg", 
+    "2.jpg", 
+    "3.jpg", 
+    "4.jpg"
+];
+
+var questions=[
+{c:"01 / 现场判断",t:"操场边的突然倒地",tag:"安全优先",s:"你看到一名同学突然倒地，周围有人举起手机拍摄。你不具备专业急救资质。第一反应应该是什么？",o:[
+"先拍下现场，发到群里问“有人认识他吗？”",
+"先确认自己和现场安全，同时尽快联系校园急救或当地专业急救服务，并听从专业人员指导",
+"独自尝试所有自己看过的急救方法",
+"等待更多人到场再处理"],a:1,g:"正确。可靠的帮助不是逞强，而是先保证安全、及时求助专业人员。",b:"不建议。现场应以安全和专业求助为先，不要为了拍摄、围观或展示能力而延误求助。"},
+{c:"02 / 求助沟通",t:"电话那头最需要什么？",tag:"信息准确",s:"你已经联系专业急救服务。对方需要了解现场情况。怎样描述最有用？",o:[
+"只说“这里有人不舒服，快来”",
+"尽量准确说明地点、人数和你观察到的情况，并按专业人员提问回答",
+"把患者姓名、照片和联系方式发到公开群",
+"先猜测病因，再把猜测告诉接线人员"],a:1,g:"正确。求助信息应准确、简洁、基于观察；不需要用猜测替代事实。",b:"不建议。求助时应优先提供准确的现场事实，并保护不必要的个人信息。"},
+{c:"03 / 信息核实",t:"“三秒见效”的急救技巧",tag:"先核实",s:"短视频里出现一个所谓“人人都该记住”的技巧，点赞很多却没有清晰来源。你准备做公益科普，怎么办？",o:[
+"点赞很多，说明大概率正确，直接转发",
+"保存下来，换个标题发布",
+"先查找可靠健康信息来源；无法确认就不把它当作科普事实传播",
+"加一句“仅供参考”就可以传播"],a:2,g:"正确。点赞量不能替代证据。公益科普应可核实、可追溯。",b:"不建议。热度、点赞和“仅供参考”都不能证明健康信息可靠。"},
+{c:"04 / 隐私保护",t:"群聊里的“现场照片”",tag:"隐私边界",s:"有人把现场照片发进班级群，能辨认患者的脸，并配上姓名和病情猜测。有人说“大家都是关心他”。",o:[
+"继续转发，让更多人帮忙判断",
+"裁掉一部分再发",
+"提醒停止扩散，不再转发；如需帮助，使用正规、必要的求助渠道",
+"加一句“请勿外传”后继续发"],a:2,g:"正确。关心不等于公开。患者照片、姓名、联系方式和未经证实的病情都可能造成二次伤害。",b:"不建议。裁剪、换群或加提示语，并不能让不必要的个人信息传播变得合理。"},
+{c:"05 / 公益创作",t:"怎样做一张真正有用的科普海报？",tag:"负责任创作",s:"你要制作“校园急救小贴士”海报。哪种方案更可靠？",o:[
+"随便找一张患者照片，真实感更强",
+"使用授权素材或自制情境插画，信息来自可靠来源，并清楚标注来源",
+"把网上热传的健康口诀全部整理进去",
+"为了吸引眼球，把风险写得越严重越好"],a:1,g:"正确。公益作品不仅要好看，还要可信、可追溯、尊重隐私。",b:"不建议。公益传播不能以侵犯隐私、未经授权使用素材或夸大风险换取关注。"},
+{c:"06 / 评论现场",t:"面对一条可疑健康信息",tag:"理性表达",s:"评论区有人说：“我朋友就是这么处理的，所以肯定有效。”你发现没有可靠依据支持。怎么回应？",o:[
+"“你不懂就别说了。”",
+"直接举报所有不同意见",
+"指出需要可靠依据，建议查找专业来源；不要把个人经历当成通用结论",
+"把朋友的故事讲得更详细，让大家自己判断"],a:2,g:"正确。公益表达可以坚定，但不必攻击别人。要区分个人经历、事实证据和专业建议。",b:"不建议。攻击、围堵或继续放大未经证实的故事，都不能提升信息可靠性。"},
+{c:"07 / 二次传播",t:"“我只是转发，不代表我相信”",tag:"传播责任",s:"你看到一条“校园急救提醒”，内容看起来很专业，但原帖没有来源。朋友说：“先转发，真假以后再说。”",o:[
+"先转发，反正不是自己写的",
+"只发到小群，人数少就没关系",
+"先暂停传播，核对来源和关键事实；无法确认就不扩散",
+"改成自己的话再发"],a:2,g:"正确。转发并不会自动消除传播责任。健康与安全信息应先核实再分享。",b:"不建议。换群、改写或注明“非本人观点”都不能替代事实核验。"},
+{c:"08 / 公益行动",t:"把知识变成可靠行动",tag:"公益闭环",s:"挑战结束后，你想把今天学到的内容分享给同学。怎样最符合公益科普的初心？",o:[
+"发一张现场照片，让大家更有冲击感",
+"整理成“判断—求助—核实—保护隐私”四步卡片，注明可靠来源，不展示真实患者信息",
+"把最吓人的案例放在标题，吸引点击",
+"告诉大家以后任何情况都照着这套方法做"],a:1,g:"正确。优秀公益传播不是制造恐慌，而是提供清晰、可核实、尊重隐私的行动框架。",b:"不建议。公益内容应避免恐吓、绝对化承诺和真实患者隐私暴露。"}
+];
+
+var index=0,score=100,right=0,locked=false;
+var $=function(id){return document.getElementById(id);};
+
+function rank(){
+if(score>=105)return "公益守护先锋";
+if(score>=80)return "可靠行动派";
+return "公益新芽";
+}
+function render(){
+if(index>=questions.length){finish();return;}
+var q=questions[index];
+locked=false;
+$("stage").textContent="第 "+(index+1)+" / "+questions.length+" 幕";
+$("fill").style.width=(index/questions.length*100)+"%";
+$("score").textContent=score;
+$("rank").textContent=rank();
+
+// 切换背景图片 (使用 index % bgImages.length 循环使用图片)
+var currentBg = bgImages[index % bgImages.length];
+$("bg").style.backgroundImage = "url('" + currentBg + "')";
+
+var letters=["A","B","C","D"];
+var html='<div class="scene">'+
+'<div class="chapter">'+q.c+'</div>'+
+'<h2>'+q.t+'</h2><span class="tag">'+q.tag+'</span>'+
+'<div class="story">'+q.s+'</div>'+
+'<div class="options">';
+for(var n=0;n<q.o.length;n++){
+html+='<button class="option" data-index="'+n+'"><span class="letter">'+letters[n]+'</span>'+q.o[n]+'</button>';
+}
+html+='</div><div class="feedback" id="feedback"></div><button class="next" id="next">进入下一幕 →</button></div>';
+$("scene").innerHTML=html;
+
+var opts=document.querySelectorAll(".option");
+for(var k=0;k<opts.length;k++){
+opts[k].addEventListener("click",function(){
+choose(parseInt(this.getAttribute("data-index"),10));
+});
+}
+$("next").addEventListener("click",next);
+}
+function choose(n){
+if(locked)return;
+locked=true;
+var q=questions[index],ok=n===q.a;
+var opts=document.querySelectorAll(".option");
+for(var k=0;k<opts.length;k++){
+opts[k].disabled=true;
+if(k===q.a)opts[k].classList.add("good");
+if(k===n && !ok)opts[k].classList.add("bad");
+}
+if(ok){score+=15;right++;}else{score=Math.max(0,score-8);}
+var f=$("feedback");
+f.className="feedback show "+(ok?"good":"bad");
+f.innerHTML="<strong>"+(ok?"✓ 可靠选择":"△ 再想一步")+"</strong><br>"+(ok?q.g:q.b);
+$("next").className="next show";
+$("score").textContent=score;
+$("rank").textContent=rank();
+}
+function next(){
+index++;
+render();
+// 已移除 window.scrollTo，作答完不会回到顶部
+}
+function finish(){
+$("fill").style.width="100%";
+$("stage").textContent="挑战完成";
+$("scene").style.display="none";
+$("final").className="final show";
+var r=rank();
+var level=right>=7?"A+":right>=5?"A":"B";
+$("finalRank").textContent=r;
+$("finalScore").textContent=score;
+$("finalRight").textContent=right+"/"+questions.length;
+$("finalLevel").textContent=level;
+$("finalText").textContent=right>=7?
+"你已经形成较完整的公益判断链：先安全、再求助、再核实、再表达，同时尊重隐私。":
+right>=5?
+"你已经具备不错的公益判断意识。再多一点核实与边界意识，你的公益表达会更可靠。":
+"公益不是说得最多，而是帮助得更可靠。再挑战一次，把判断链补完整。";
+}
+function restart(){
+index=0;score=100;right=0;locked=false;
+$("scene").style.display="block";
+$("final").className="final";
+render();
+window.scrollTo({top:0,behavior:"smooth"}); // 重新挑战时回到顶部
+}
+$("restartBtn").addEventListener("click",restart);
+$("printBtn").addEventListener("click",function(){
+var n=$("name").value.trim();
+if(!n){alert("请先输入姓名或昵称。");return;}
+window.print();
+});
+render();
+})();
+</script>
+</body>
+</html>
